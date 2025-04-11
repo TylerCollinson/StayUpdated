@@ -1,13 +1,13 @@
 export interface Link {
-  title: string
-  url: string
+  title: string;
+  url: string;
 }
 
 export interface Topic {
-  id: string
-  title: string
-  description: string
-  content?: string
-  links?: Link[]
-  category: "design" | "coding" | "both" // Added category field
+  id: number;
+  title: string;
+  description: string;
+  markdownFile: string;
+  links?: Link[];
+  category: "design" | "coding" | "both";
 }

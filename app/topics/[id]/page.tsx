@@ -1,21 +1,29 @@
-import { topics } from "@/data/topics"
-import { ExternalLink } from "lucide-react"
-import Link from "next/link"
-import { notFound } from "next/navigation"
+import { topics } from "@/data/topics";
+import { ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { getMarkdownContent } from '@/lib/markdown';
 
 export function generateStaticParams() {
   return topics.map((topic) => ({
-    id: topic.id,
-  }))
+    id: topic.id.toString(), // Next.js route params must be strings
+  }));
 }
 
-export default function TopicPage({ params }: { params: { id: string } }) {
-  const topic = topics.find((t) => t.id === params.id)
+
+
+
+export default async function TopicPage({ params }: { params: { id: string } }) {
+  const topic = topics.find((t) => t.id === Number(params.id));
 
   if (!topic) {
-    notFound()
+    notFound();
   }
 
+
+  const markdownData = await getMarkdownContent(topic.markdownFile);
   return (
     <main className="min-h-screen bg-white">
       <div className="container mx-auto py-12 px-4">
@@ -28,10 +36,14 @@ export default function TopicPage({ params }: { params: { id: string } }) {
             <h1 className="text-3xl font-bold mb-4">{topic.title}</h1>
             <p className="text-gray-700 text-lg mb-6">{topic.description}</p>
 
-            {topic.content && (
-              <div className="prose max-w-none mb-8" dangerouslySetInnerHTML={{ __html: topic.content }} />
-            )}
+            <div className="prose max-w-none mb-8">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {markdownData.content}
+            </ReactMarkdown>
 
+          </div>
+
+            {/* Render links */}
             {topic.links && topic.links.length > 0 && (
               <div className="mt-8 pt-6 border-t border-gray-200">
                 <h2 className="text-xl font-semibold mb-4">Resources</h2>
@@ -56,5 +68,5 @@ export default function TopicPage({ params }: { params: { id: string } }) {
         </div>
       </div>
     </main>
-  )
+  );
 }
